@@ -44,17 +44,7 @@ createSufIdeal(Ring,ZZ,List,List) := (R,m,V,E) -> (
 
 -------
 
---Example 
-n=3 -- number of vertices
-m=2 -- m\times m minors
-V={{1,3},{2}} -- vertex class colors 
-E={{{1,2},{2,3}},{{1,3}}} -- edge class colors
-R=createRing(n,V,E)
-createSufIdeal(R,m,V,E) -- ideal of sufficient statistics for rank m-1 matrices. If this is zero, then MLT=m-1. 
 
-
-createMatrix(R,n)
-createSufStats(R,V,E)
 
 
 
@@ -63,24 +53,40 @@ createSufStats(R,V,E)
 
 needsPackage "SchurRings"
 n=3
+--number of vertices
 m=2
+--m\times m minors
+Vertices={1,2,3}
+Edges= {{1,2},{1,3},{2,3}};
+--list of edges
+
+permutationVertices= permutations Vertices;
+permutationEdges= permutations Edges;
+--- creates list of every order of the vertices for order in which vertices will be asigned colors (if all vertices are interchangable this doesnt matter)
+
 IdealList= {};
-
-
+--FinalList of suff Ideals
+ColorList = {};
+--List of the colorings producing those in the same order, its listed vertex then edge
 PartV =partitions(n);
-PartE = partitions(binomial(n,2));
 
-SameS=new MutableList;
-for r from 0 to n-1 do(
-	SameS#r=r+1;
-    );
+PartE = partitions(#Edges);
+--List of all partitions of the size of vertices and edges
 
-DiffS= {};
-for t from 1 to n-1 do(
-	for s from t to n-1 do(
-	DiffS= append(DiffS,{t,s+1});
-    );
-    );
+
+--for t from 0 to (#permutationVertices-1) do(
+--Vertices= permutationVertices_t;
+
+--- creates list of every order of the vertices for order in which vertices will be asigned colors (if all vertices are interchangable this doesnt matter)
+-- comment out this for loop if you want just want one ordering
+
+--for s from 0 to (#permutationEdges-1) do(
+--Edges= permutationEdges_s;
+
+
+--- creates list of every order of the edges for order in which vertices will be asigned colors (if all vertices are interchangable this doesnt matter)
+-- comment out this for loop if you want just want one ordering
+
 
 VertList= {};
 EdgeList= {};
@@ -88,41 +94,58 @@ EdgeList= {};
 VertListfull = {};
 EdgeListfull= {};
 for p from 0 to (#PartV-1) do(
+    V= toList PartV#p;
     curtotalvertex=0;
     
+    for k from 0 to (#V-1) do(
+	for i from    curtotalvertex to (curtotalvertex+V_k-1) do(   
+	VertList= append (VertList, Vertices#i);
+    );
+   curtotalvertex=   curtotalvertex +(V_k);
+   VertListfull= append (VertListfull, VertList);
+   VertList= {};   
+   );
+  --For each partition adds vertices and edges into color classes in the order they are in
+
 for q from 0 to (#PartE-1) do(
 curtotaledge=0;
 
 
-V= toList PartV#p;
 E= toList PartE#q;
 
-for k from 0 to (#V-1) do(
+
     
 for l from 0 to (#E-1) do( 
        
-for i from    curtotalvertex to (V_k-1) do(   
-	VertList= append (VertList, SameS#i);
+
+for j from  curtotaledge to (curtotaledge+E_l-1) do(  
+    EdgeList= append (EdgeList, Edges#j); 
     );
-   curtotalvertex=   curtotalvertex +(V_k-1);
-for j from  curtotaledge to (E_l-1) do(  
-    EdgeList= append (EdgeList, DiffS#j); 
-    );
-  curtotaledge=   curtotaledge +(E_l-1);
-VertListfull= append (VertListfull, VertList);
-EdgeListfull= append (EdgeListfull, VertList);
-VertList= {};
+  curtotaledge=   curtotaledge +(E_l);
+
+EdgeListfull= append (EdgeListfull, EdgeList);
 EdgeList= {};
 );
-);
+
+
+
+
 R=createRing(n,VertListfull,EdgeListfull);
 I=createSufIdeal(R,m,VertListfull,EdgeListfull);
 IdealList= append (IdealList, I);
-VertListfull = {};
+ColorList = append (ColorList,VertListfull);
+ColorList = append (ColorList,EdgeListfull);
 EdgeListfull= {};
 );
-
+VertListfull = {};
 );
+
+
+
+--);
+
+--);
+
 
 
 
