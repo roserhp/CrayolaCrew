@@ -390,6 +390,28 @@ checkRankCompletion=(compl,rk,tol)->(
     else return(eigenvalues sub(compl,QQ));	
     )
 
+
+------------------------------------------------
+-- Auxiliar functions
+------------------------------------------------
+
+-- Compute list of ppal minors 
+principalMinors=M->(
+mm:=numcols M;
+ss:=drop(subsets mm,-1);
+for s in ss list submatrix'(M,s,s)
+);
+
+-- Compute list of determinants of ppal minors 
+detPrincipalMinors=M->(
+L:=principalMinors M;
+for l in L list det l
+);
+
+-- Compute product of determinants of ppal minors 
+prodPrincipalMinors=M->(
+ideal product (detPrincipalMinors M)
+);
 ------------------------------------------------
 -- TBD
 ------------------------------------------------
